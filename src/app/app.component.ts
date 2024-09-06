@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 
 import { CommonModule } from '@angular/common';
@@ -78,10 +78,14 @@ import { MaterialModule } from './material.module';
     }
   `]
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'Virion';
 
   isMenuOpen = false;
+
+  ngOnInit() {
+    console.log('AppComponent initialized');
+  }
 
   toggleMenu() {
     this.isMenuOpen = !this.isMenuOpen;
