@@ -7,5 +7,5 @@ export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'user', component: UserComponent },
   { path: 'dashboard', component: DashboardComponent },
-  // ... other routes
+  { path: '**', redirectTo: '' }
 ];
