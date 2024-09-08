@@ -5,13 +5,14 @@ import { provideHttpClient } from '@angular/common/http';
 import { routes } from './app.routes';
 import { MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatNativeDateModule } from '@angular/material/core';
+import { FormsModule } from '@angular/forms';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
     provideAnimations(),
     provideHttpClient(),
-    importProvidersFrom(MatNativeDateModule),
+    importProvidersFrom(MatNativeDateModule, FormsModule),
     { provide: MAT_DATE_LOCALE, useValue: 'en-US' }
   ]
 };
