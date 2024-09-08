@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -7,8 +7,15 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatListModule } from '@angular/material/list';
 import { Chart, ChartConfiguration } from 'chart.js/auto';
+import { LoginService } from '../services/login.service';
+import { STATES } from '../constants/states';
 
 interface Virus {
+  value: string;
+  viewValue: string;
+}
+
+interface State {
   value: string;
   viewValue: string;
 }
@@ -34,8 +41,16 @@ interface Virus {
         <mat-card-content>
           <p>
             This dashboard provides real-time tracking of multiple viruses using CDC wastewater data. 
-            Select one or more viruses to view their spread, hospitalization rates, and other key metrics.
+            Select a state and one or more viruses to view their spread, hospitalization rates, and other key metrics.
           </p>
+          <mat-form-field appearance="fill">
+            <mat-label>Select State</mat-label>
+            <mat-select [(ngModel)]="selectedState">
+              <mat-option *ngFor="let state of states" [value]="state.value">
+                {{state.viewValue}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
           <mat-form-field appearance="fill">
             <mat-label>Select Viruses</mat-label>
             <mat-select [(ngModel)]="selectedViruses" multiple>
@@ -114,7 +129,7 @@ interface Virus {
     }
   `]
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
   @ViewChild('chartCanvas') chartCanvas!: ElementRef<HTMLCanvasElement>;
 
   viruses: Virus[] = [
@@ -124,6 +139,9 @@ export class DashboardComponent {
     {value: 'mpox', viewValue: 'MPox'}
   ];
 
+  states = STATES;
+
+  selectedState: string = '';
   selectedViruses: string[] = [];
   isHighRisk: boolean = false;
   chart: Chart | null = null;
@@ -134,7 +152,23 @@ export class DashboardComponent {
     highRiskRecommendations: string[];
   } | null = null;
 
+  constructor(private loginService: LoginService) {}
+
+  ngOnInit() {
+    this.loginService.getLoggedInUser().subscribe(user => {
+      if (user) {
+        this.selectedState = user.homeState;
+        this.isHighRisk = user.isHighRisk;
+      }
+    });
+  }
+
   onSubmit() {
+    if (!this.selectedState) {
+      console.error('No state selected');
+      return;
+    }
+    console.log('Selected state:', this.selectedState);
     console.log('Selected viruses:', this.selectedViruses);
     this.createChart();
     this.generateRecommendation();

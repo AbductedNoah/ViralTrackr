@@ -1,13 +1,28 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
-
 import { CommonModule } from '@angular/common';
-import { MaterialModule } from './material.module';
+import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatListModule } from '@angular/material/list';
+import { LoginService } from './services/login.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, CommonModule, MaterialModule],
+  imports: [
+    CommonModule,
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    MatToolbarModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSidenavModule,
+    MatListModule
+  ],
   template: `
     <mat-toolbar color="primary">
       <button mat-icon-button (click)="toggleMenu()">
@@ -15,9 +30,15 @@ import { MaterialModule } from './material.module';
       </button>
       <span>Virion</span>
       <span class="spacer"></span>
-      <button mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</button>
-      <button mat-button routerLink="/dashboard" routerLinkActive="active">Dashboard</button>
-      <button mat-button routerLink="/user" routerLinkActive="active">User Management</button>
+      <div class="toolbar-links">
+        <button mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</button>
+        <button mat-button routerLink="/dashboard" routerLinkActive="active">Dashboard</button>
+        <button mat-button routerLink="/user" routerLinkActive="active">User Management</button>
+        <button mat-button routerLink="/cdc-data" routerLinkActive="active">CDC Data</button>
+        <span *ngIf="loggedInUser">{{ "Hi, " + loggedInUser }}</span>
+        <button mat-button *ngIf="!loggedInUser" routerLink="/login">Login</button>
+        <button mat-button *ngIf="loggedInUser" (click)="logout()">Logout</button>
+      </div>
     </mat-toolbar>
 
     <mat-sidenav-container>
@@ -26,6 +47,7 @@ import { MaterialModule } from './material.module';
           <a mat-list-item routerLink="/" (click)="sidenav.close()">Home</a>
           <a mat-list-item routerLink="/dashboard" (click)="sidenav.close()">Dashboard</a>
           <a mat-list-item routerLink="/user" (click)="sidenav.close()">User Management</a>
+          <a mat-list-item routerLink="/cdc-data" (click)="sidenav.close()">CDC Data</a>
         </mat-nav-list>
       </mat-sidenav>
 
@@ -36,58 +58,47 @@ import { MaterialModule } from './material.module';
       </mat-sidenav-content>
     </mat-sidenav-container>
   `,
-  styles: [`
-    .spacer {
-      flex: 1 1 auto;
-    }
-    .content {
-      padding: 20px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    .welcome-banner {
-      background-color: #f0f0f0;
-      padding: 20px;
-      border-radius: 5px;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-    .welcome-banner h1 {
-      color: #3f51b5;
-      margin-bottom: 10px;
-    }
-    .site-info {
-      background-color: white;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .site-info h2 {
-      color: #3f51b5;
-      margin-bottom: 15px;
-    }
-    .site-info h3 {
-      margin-top: 20px;
-      margin-bottom: 10px;
-    }
-    .site-info ul {
-      padding-left: 20px;
-    }
-    .active {
-      background-color: rgba(0,0,0,0.1);
-    }
-  `]
+  styles: [
+    // ... (keep existing styles)
+    `
+      .spacer {
+        flex: 1 1 auto;
+      }
+      .toolbar-links {
+        display: flex;
+        align-items: center;
+      }
+      .toolbar-links > * {
+        margin-left: 8px;
+      }
+      .content {
+        padding: 20px;
+      }
+    `
+  ]
 })
 export class AppComponent implements OnInit {
   title = 'Virion';
-
   isMenuOpen = false;
+  loggedInUser: string | null = null;
+
+  constructor(private loginService: LoginService, private router: Router) {}
 
   ngOnInit() {
-    console.log('AppComponent initialized');
+    this.loginService.getLoggedInUser().subscribe(user => {
+      this.loggedInUser = user ? user.name : null;
+      if (user) {
+        this.router.navigate(['/dashboard']);
+      }
+    });
   }
 
   toggleMenu() {
     this.isMenuOpen = !this.isMenuOpen;
+  }
+
+  logout() {
+    this.loginService.logout();
+    this.router.navigate(['/']);
   }
 }

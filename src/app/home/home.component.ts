@@ -32,6 +32,7 @@ import { RouterLink } from '@angular/router';
         </mat-card-content>
         <mat-card-actions>
           <button mat-raised-button color="primary" routerLink="/dashboard">Go to Dashboard</button>
+          <button mat-raised-button color="accent" routerLink="/login">Login</button>
         </mat-card-actions>
       </mat-card>
     </div>
@@ -47,6 +48,11 @@ import { RouterLink } from '@angular/router';
     }
     ul {
       padding-left: 1.5rem;
+    }
+    mat-card-actions {
+      display: flex;
+      justify-content: space-between;
+      padding: 16px;
     }
   `]
 })
